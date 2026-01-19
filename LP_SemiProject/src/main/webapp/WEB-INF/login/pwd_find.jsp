@@ -166,6 +166,8 @@
            if(mobile == "") { alert("휴대폰 번호를 입력하세요."); return; }
        }
        
+       
+       $('div#div_findResult').empty().hide();
        // 전송 버튼 숨기고 스피너 표시
        $('#btnFind').hide();
        $('#spinner').show();
