@@ -39,7 +39,7 @@ public class Admin_order extends AbstractController {
         InterAdminDAO adao = new AdminDAO();
 
         // [기능 2] 배송 시작 처리 (Ajax)
-        if("POST".equalsIgnoreCase(method) && "deliveryStart".equals(mode)) {
+        if("POST".equalsIgnoreCase(method) && "updateDeliveryStart".equals(mode)) {
             String orderno = request.getParameter("orderno");
             String invoice_no = request.getParameter("invoice_no");
             String delivery_company = request.getParameter("delivery_company");
@@ -77,6 +77,22 @@ public class Admin_order extends AbstractController {
             paraMap.put("extraaddress", extraaddress);
             
             int n = adao.updateOrderAddress(paraMap); 
+            
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("result", n); 
+            
+            request.setAttribute("json", jsonObj.toString());
+            
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/jsonview.jsp");
+        }
+        
+        // [기능 4] 배송 완료 처리 (Ajax)
+        else if("POST".equalsIgnoreCase(method) && "updateDeliveryEnd".equals(mode)) {
+            String orderno = request.getParameter("orderno");
+            
+            // DAO 호출 (배송완료 처리)
+            int n = adao.updateDeliveryEnd(orderno); 
             
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("result", n); 
