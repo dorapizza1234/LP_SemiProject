@@ -3,7 +3,7 @@ let originalEmail = "";
 
 $(function () {
 
-    // 🔥 기존 이메일 저장 (페이지 로딩 시)
+    // 기존 이메일 저장 (페이지 로딩 시)
     originalEmail = $("#email").val();
 
     /* =========================
@@ -13,7 +13,7 @@ $(function () {
 
         const email = $("#email").val().trim();
         const regEmail =
-            /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,}$/;
+            /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@naver\.com$/i;
 
         if (email === "") {
             alert("이메일을 입력하세요.");
@@ -70,11 +70,21 @@ $(function () {
     /* =========================
        휴대폰 숫자만 입력
     ========================= */
-    $("#hp2, #hp3").on("input", function () {
-        this.value = this.value.replace(/[^0-9]/g, "");
-    });
-
-});
+	$("#hp2, #hp3").on("input", function () {
+	        // 숫자만 남기기
+	        this.value = this.value.replace(/[^0-9]/g, "");
+	        
+	        // 4자리가 넘어가면 자르기
+	        if (this.value.length > 4) {
+	            this.value = this.value.slice(0, 4);
+	        }
+	        
+	        // hp2 다 채우면 hp3로 자동 포커스
+	        if (this.id === "hp2" && this.value.length === 4) {
+	            $("#hp3").focus();
+	        }
+	    });
+	});
 
 /* ======================================================
    회원정보 수정 전송
@@ -85,19 +95,22 @@ function goEdit() {
     const name = $("#name").val().trim();
     const regName = /^([가-힣]{2,10}|[a-zA-Z]{2,20})$/;
 
+	if (!regName.test(name)) {
+	      alert("성명은 한글 2~10자 또는 영문 2~20자만 가능합니다.");
+	      $("#name").focus();
+	      return;
+	  }
+
+	
+	
     if (name === "") {
         alert("성명을 입력하세요.");
         $("#name").focus();
         return;
     }
 
-    if (!regName.test(name)) {
-        alert("성명은 한글 2~10자 또는 영문 2~20자만 가능합니다.");
-        $("#name").focus();
-        return;
-    }
-
-    // 2️⃣ 이메일 검사
+  
+    // 2️ 이메일 검사
     const email = $("#email").val().trim();
 
     if (email === "") {
@@ -112,19 +125,34 @@ function goEdit() {
         return;
     }
 
-    // 3️⃣ 휴대폰 검사
-    const hp2 = $("#hp2").val().trim();
-    const hp3 = $("#hp3").val().trim();
+	// 3️. 휴대폰 검사 (정확히 4자리인지 다시 확인)
+	    const hp2 = $("#hp2").val().trim();
+	    const hp3 = $("#hp3").val().trim();
+	    const regExp_hp = /^\d{4}$/; // 정확히 숫자 4자리
 
-    if (!/^\d{4}$/.test(hp2) || !/^\d{4}$/.test(hp3)) {
-        alert("연락처는 숫자 4자리씩 입력하세요.");
-        $("#hp2").focus();
-        return;
-    }
+	    if (!regExp_hp.test(hp2)) {
+	        alert("휴대폰 번호 중간 자리를 숫자 4자리로 입력하세요.");
+	        $("#hp2").focus();
+	        return;
+	    }
 
-    // 4️⃣ 폼 전송
+	    if (!regExp_hp.test(hp3)) {
+	        alert("휴대폰 번호 끝 자리를 숫자 4자리로 입력하세요.");
+	        $("#hp3").focus();
+	        return;
+	    }
+		
+		//주소
+		const detailAddress=$("#detailAddress").val().trim();
+		if(detailAddress===""){
+			alert("상세 주소를 입력해주세요.");
+			$("#detailAddress").focus(); // 입력창으로 커서 이동
+			    return; // 함수 종료 (전송 중단)
+		}
+
+    // 4️ 폼 전송
     const frm = document.forms["editFrm"];
     frm.method = "post";
-    frm.action = ctxPath + "/member/member_info.lp";
+    frm.action = ctxPath + "/my_info/my_info.lp";
     frm.submit();
 }

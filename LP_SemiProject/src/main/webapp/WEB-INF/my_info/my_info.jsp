@@ -19,7 +19,7 @@
 <script src="<%=ctxPath%>/js/jquery-3.7.1.min.js"></script>
 <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script> 
 <script src="<%= ctxPath %>/13_daum_address_search/js/daum_address_search.js"></script>
-<script src="<%= ctxPath %>/js/my_info/my_edit.js"></script>
+<script src="<%= ctxPath %>/js/my_info/my_info.js"></script>
 
  <link rel="stylesheet" href="<%= ctxPath%>/css/my_info/mypage_layout.css">
  <link rel="stylesheet" href="<%=ctxPath%>/css/my_info/my_info.css">
