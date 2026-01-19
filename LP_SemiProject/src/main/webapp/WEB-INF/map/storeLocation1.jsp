@@ -122,11 +122,79 @@
    }
 
    .custom-iw { padding: 15px; font-size: 13px; }
+제공해주신 코드를 확인해 보니 이미 @media (max-width: 768px)와 992px 영역에서 flex-direction: column;을 사용하여 모바일 대응을 잘 준비해두셨습니다.
 
-   @media (max-width: 992px) {
-       .map-flex-box { flex-direction: column; }
-       #map, #info-side-panel { width: 100%; height: 500px; }
-   }
+다만, 화면이 줄어들었을 때 지도가 위에 뜨고 정보가 아래로 배치되게 하려면, flex-direction 설정이 정확히 적용되어야 하며, 특히 모바일에서 지도의 높이가 너무 작거나 레이아웃이 깨지지 않도록 몇 가지 부분을 보완하면 완벽합니다.
+
+🛠 수정 및 보완된 CSS 코드
+기존의 <style> 태그 내의 미디어 쿼리 부분을 아래 코드로 교체하거나 참고하여 수정해 보세요.
+
+CSS
+
+/* 992px 이하 (태블릿 등) */
+@media (max-width: 992px) {
+    .map-flex-box { 
+        flex-direction: column; /* 세로로 나열 (지도 위, 패널 아래) */
+        align-items: center;
+    }
+    #map { 
+        width: 100% !important; 
+        height: 450px; /* 태블릿에서는 약간 넉넉하게 */
+        min-width: unset; 
+    }
+    #info-side-panel { 
+        width: 100% !important; 
+        height: auto; /* 내용에 맞춰 늘어남 */
+        min-width: unset; 
+    }
+}
+/* 태블릿 및 모바일 공통 (992px 이하) */
+@media (max-width: 992px) {
+    .map-flex-box { 
+        flex-direction: column !important; /* 무조건 세로 배치 */
+        gap: 20px;
+    }
+
+    #map { 
+        width: 100% !important; 
+        height: 400px; /* 지도를 위로 배치하고 높이 지정 */
+        min-width: unset; 
+        flex: none; /* 플렉스 비율 해제 */
+    }
+
+    #info-side-panel { 
+        width: 100% !important; 
+        height: auto !important; /* 고정 높이 680px 해제 (중요!) */
+        min-height: unset;
+        min-width: unset; 
+        padding: 30px 25px;
+        flex: none;
+        margin-bottom: 50px; /* 푸터와의 간격 확보 */
+        display: block; /* 내부 요소가 잘 보이지 않으면 block으로 전환 */
+    }
+
+    /* 하단 버튼 영역이 잘 보이도록 마진 조정 */
+    #info-side-panel div[style*="margin-top: auto"] {
+        margin-top: 30px !important; 
+    }
+}
+
+/* 스마트폰 전용 (768px 이하) */
+@media (max-width: 768px) {
+    #map {
+        height: 300px; /* 스마트폰에선 지도를 조금 더 작게 */
+    }
+    
+    #map-page-wrapper #title {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    #info-side-panel h2 {
+        font-size: 22px;
+        text-align: center;
+    }
+}
 </style>
 
 <div id="map-page-wrapper">
@@ -236,6 +304,7 @@ $(function(){
         mapobj.setCenter(storePos);
     });
 });
+
 </script>
 
 <jsp:include page="../footer1.jsp" />
