@@ -30,6 +30,26 @@
   color: #999;
 }
 
+
+/* 1. 모든 상태(기본, 방문함, 클릭중)를 흰색으로 통합 강제 적용 */
+.btn-location-link, 
+.btn-location-link:link, 
+.btn-location-link:visited, 
+.btn-location-link:active,
+.btn-location-link:focus {
+    color: #ffffff !important;         /* 무조건 흰색 */
+    text-decoration: none !important;  /* 기본 밑줄 제거 */
+    border-bottom: 1.5px solid #ffffff !important; /* 직접 만든 흰색 밑줄 */
+    font-weight: 700 !important;
+    display: inline-block;
+    padding-bottom: 2px;
+}
+
+/* 2. 마우스 올렸을 때만 아주 살짝 변화 (선택 사항) */
+.btn-location-link:hover {
+    color: #ffffff !important;
+    opacity: 0.6; /* 보라색이 되는 게 아니라 살짝 투명해짐 */
+}
 /* ===== 모바일 ===== */
 @media (max-width: 768px) {
   .footer-line {

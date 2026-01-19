@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -455,4 +456,34 @@ public class ProductDAO_imple implements ProductDAO {
         }
         return reviewList;
     }// end of public List<ReviewDTO> selectReviewListPaging(Map<String, String> paraMap) throws SQLException {---------------------------
+
+ // tbl_map(위,경도) 테이블 대신 자바에서 직접 데이터를 만들어서 반환
+    @Override
+    public List<Map<String, String>> selectStoreMap() throws SQLException {
+       
+       List<Map<String, String>> storeMapList = new ArrayList<>();
+       
+       // DB 로직(try-finally)을 모두 주석 처리하거나 지우고, 
+       // 아래처럼 직접 리스트에 데이터를 추가합니다.
+       
+       Map<String, String> map = new HashMap<>();
+       
+       // DB 컬럼명과 동일한 Key값을 사용해야 StoreLocationJSON에서 꺼낼 때 에러가 안 납니다.
+       map.put("STOREID", "1");
+       map.put("STORENAME", "비니스트"); // 마킹할 이름
+       map.put("STOREURL", "https://map.kakao.com");
+       map.put("STOREIMG", "main_line.jpg"); // 아까 수정한 그 이미지 파일명!
+       map.put("STOREADDRESS", "서울 강남구 테헤란로70길 12");
+       map.put("LAT", "37.505"); // 위도
+       map.put("LNG", "127.048"); // 경도
+       map.put("ZINDEX", "1");
+                   
+       storeMapList.add(map); 
+       
+       // 만약 여러 개를 마크업하고 싶다면 여기서 map2, map3를 만들어 add하면 됩니다.
+       
+       return storeMapList; // 이제 이 리스트를 StoreLocationJSON이 받아서 화면에 그려줍니다.
+    }
+
+
 }

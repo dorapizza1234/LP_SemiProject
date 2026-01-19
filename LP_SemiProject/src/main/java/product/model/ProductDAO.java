@@ -37,4 +37,7 @@ public interface ProductDAO {
     
     // 특정 제품의 리뷰 총 개수 (페이징 계산용)
     int getTotalReviewCount(int productno) throws SQLException;
+     
+    //찾아오는길 지도 
+	List<Map<String, String>> selectStoreMap()throws SQLException;
 }
