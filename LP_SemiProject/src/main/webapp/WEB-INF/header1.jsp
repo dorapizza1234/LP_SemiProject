@@ -51,3 +51,45 @@
         <a href="<%= ctxPath%>/my_info/my_info.lp">MY PROFILE</a>
      </nav>
    </header>
+   
+   <!-- ✅ 스크립트는 CSS 텍스트 뒤에 붙이지 말고, body 끝쪽에 두는 게 안전 -->
+<script>
+  $(function () {
+    const $btn = $(".nav-toggle");
+    const $menu = $(".navlinks-mobile");
+
+    function closeMenu(){
+      $menu.removeClass("is-open");
+      $btn.attr("aria-expanded", "false");
+      $btn.find("i").removeClass("fa-xmark").addClass("fa-bars");
+    }
+
+    function openMenu(){
+      $menu.addClass("is-open");
+      $btn.attr("aria-expanded", "true");
+      $btn.find("i").removeClass("fa-bars").addClass("fa-xmark");
+    }
+
+    $btn.on("click", function (e) {
+      e.stopPropagation();
+      if ($menu.hasClass("is-open")) closeMenu();
+      else openMenu();
+    });
+
+    $(document).on("click", function () {
+      if ($menu.hasClass("is-open")) closeMenu();
+    });
+
+    $menu.on("click", function (e) {
+      e.stopPropagation();
+    });
+
+    $(document).on("keydown", function(e){
+      if(e.key === "Escape") closeMenu();
+    });
+
+    $(window).on("resize", function(){
+      if(window.innerWidth > 768) closeMenu();
+    });
+  });
+</script>
