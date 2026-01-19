@@ -314,54 +314,50 @@
     </div>
 
 	<script>
+        // 정렬(Sort) 기능 함수
         function sortProduct() {
             const sortVal = document.getElementById("sortSelect").value;
             const categoryNo = "${requestScope.categoryNo}"; 
-    
-            const searchWord = "${requestScope.searchWord}";
+            // 검색어에 따옴표가 들어갈 수 있으므로 자바스크립트 문자열 처리 주의
+            const searchWord = "${fn:escapeXml(requestScope.searchWord)}"; 
             
             location.href = "<%= ctxPath%>/index.lp?categoryno=" + categoryNo + "&q=" + searchWord + "&sort=" + sortVal + "#product-list";
         }
+
+        // 페이지 로드 후 실행되는 통합 로직
         window.addEventListener('load', function() {
-            <c:if test="${not empty requestScope.productList}">
+            
+            // 검색 실패 (결과 없음) -> 알림 띄우고 상단 고정
+            <c:if test="${requestScope.searchFailed}">
+                alert("검색하신 제품이 없습니다.\n해당 카테고리의 전체 상품 목록을 보여드립니다.");
                 
-                <c:if test="${not empty requestScope.searchWord}">
-                    
-                    const target = document.getElementById("product-list");
-                    if(target) {
-                        
-                        target.scrollIntoView({behavior: "smooth"});
-                    }
-                    
-                </c:if>
+                // 1. URL 정리 (새로고침 시 재검색 방지)
+                if (history.replaceState) {
+                    var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    <c:if test="${not empty requestScope.categoryNo && requestScope.categoryNo != 0}">
+                        cleanUrl += "?categoryno=${requestScope.categoryNo}";
+                    </c:if>
+                    window.history.replaceState({path:cleanUrl}, '', cleanUrl);
+                }
+                
+                // 2. 검색창 비우기 및 포커스 (화면이 위쪽에 고정됨)
+                var searchInput = document.querySelector("input[name='q']");
+                if(searchInput) {
+                    searchInput.value = ""; 
+                    searchInput.focus(); 
+                }
+                return;
+            </c:if>
+
+
+            <c:if test="${not empty requestScope.productList and not empty requestScope.searchWord}">
+                const target = document.getElementById("product-list");
+                if(target) {
+                    target.scrollIntoView({behavior: "smooth"});
+                }
             </c:if>
         });
     </script>
-    <%-- 검색 실패 시 알림창 띄우기 --%>
-    <c:if test="${requestScope.searchFailed}">
-        <script type="text/javascript">
-            alert("검색하신 제품이 없습니다.\n해당 카테고리의 전체 상품 목록을 보여드립니다.");
-            
-            
-            if (history.replaceState) {
-                var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-                
-                
-                <c:if test="${not empty requestScope.categoryNo && requestScope.categoryNo != 0}">
-                    cleanUrl += "?categoryno=${requestScope.categoryNo}";
-                </c:if>
-                
-                window.history.replaceState({path:cleanUrl}, '', cleanUrl);
-            }
-            
-            
-            var searchInput = document.querySelector("input[name='q']");
-            if(searchInput) {
-                searchInput.value = ""; 
-                searchInput.focus();
-            }
-        </script>
-    </c:if>
     
     <div class="grid">
         <c:if test="${not empty requestScope.productList}">
