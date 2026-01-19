@@ -56,121 +56,7 @@ public class AdminDAO implements InterAdminDAO {
         }
     }
 
-    // 1. 오늘 매출 조회
-    @Override
-    public int getTodaySales() throws SQLException {
-        int todaySales = 0;
-        try {
-            conn = ds.getConnection();
-            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
-                       + " FROM tbl_order A JOIN tbl_delivery B "
-                       + " ON A.orderno = B.fk_orderno "
-                       + " WHERE to_char(A.orderdate, 'yyyy-mm-dd') = to_char(sysdate, 'yyyy-mm-dd') "
-                       + " AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "; 
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                todaySales = rs.getInt(1);
-            }
-        } finally {
-            close();
-        }
-        return todaySales;
-    }
-
-    // 2. 이번 달 매출 조회
-    @Override
-    public int getMonthSales() throws SQLException {
-        int monthSales = 0;
-        try {
-            conn = ds.getConnection();
-            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
-                       + " FROM tbl_order A JOIN tbl_delivery B "
-                       + " ON A.orderno = B.fk_orderno "
-                       + " WHERE to_char(A.orderdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm') "
-                       + " AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') ";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                monthSales = rs.getInt(1);
-            }
-        } finally {
-            close();
-        }
-        return monthSales;
-    }
-
-    // 3. 총 누적 매출 조회
-    @Override
-    public long getTotalSales() throws SQLException {
-        long totalSales = 0;
-        try {
-            conn = ds.getConnection();
-            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
-                       + " FROM tbl_order A JOIN tbl_delivery B "
-                       + " ON A.orderno = B.fk_orderno "
-                       + " WHERE B.deliverystatus IN ('배송준비중', '배송중', '배송완료') ";
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                totalSales = rs.getLong(1);
-            }
-        } finally {
-            close();
-        }
-        return totalSales;
-    }
-
-    // 4. 차트용 데이터 조회 (월별/연도별)
-    @Override
-    public List<Map<String, String>> getSalesChartData(Map<String, String> paraMap) throws SQLException {
-        List<Map<String, String>> chartList = new ArrayList<>();
-        try {
-            conn = ds.getConnection();
-            String searchType = paraMap.get("searchType");
-            String sql = "";
-            
-            if("month".equals(searchType)) {
-                sql = " SELECT to_char(A.orderdate, 'yyyy-mm') AS label, "
-                    + "        nvl(sum(A.totalprice), 0) AS amount "
-                    + " FROM tbl_order A JOIN tbl_delivery B "
-                    + " ON A.orderno = B.fk_orderno "
-                    + " WHERE to_char(A.orderdate, 'yyyy-mm') BETWEEN ? AND ? "
-                    + "   AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "
-                    + " GROUP BY to_char(A.orderdate, 'yyyy-mm') "
-                    + " ORDER BY label ASC ";
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, paraMap.get("startDate"));
-                pstmt.setString(2, paraMap.get("endDate"));
-            } 
-            else {
-                sql = " SELECT to_char(A.orderdate, 'yyyy') AS label, "
-                    + "        nvl(sum(A.totalprice), 0) AS amount "
-                    + " FROM tbl_order A JOIN tbl_delivery B "
-                    + " ON A.orderno = B.fk_orderno "
-                    + " WHERE to_char(A.orderdate, 'yyyy') BETWEEN ? AND ? "
-                    + "   AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "
-                    + " GROUP BY to_char(A.orderdate, 'yyyy') "
-                    + " ORDER BY label ASC ";
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, paraMap.get("startYear"));
-                pstmt.setString(2, paraMap.get("endYear"));
-            }
-            
-            rs = pstmt.executeQuery();
-            while(rs.next()) {
-                Map<String, String> map = new HashMap<>();
-                map.put("label", rs.getString("label"));
-                map.put("amount", rs.getString("amount"));
-                chartList.add(map);
-            }
-        } finally {
-            close();
-        }
-        return chartList;
-    }
-    
-    // 5. 관리자 로그인
+    // 1. 관리자 로그인
     @Override
     public AdminVO getAdminLogin(Map<String, String> paraMap) throws SQLException {
         AdminVO adminvo = null;
@@ -191,7 +77,7 @@ public class AdminDAO implements InterAdminDAO {
         return adminvo;
     }
 
-    // 6. 회원 전체 목록 조회 (기존 방식 - 페이징 없음)
+    // 2. 회원 전체 목록 조회 (기존 방식 - 페이징 없음)
     @Override
     public List<MemberVO> getMemberList(Map<String, String> paraMap) throws SQLException {
         List<MemberVO> memberList = new ArrayList<>();
@@ -249,7 +135,7 @@ public class AdminDAO implements InterAdminDAO {
         return memberList;
     }
 
-    // 7. 총 회원 수 조회 (페이징용, 검색 포함)
+    // 3. 총 회원 수 조회 (페이징용, 검색 포함)
     @Override
     public int getTotalMemberCount(Map<String, String> paraMap) throws SQLException {
         int totalCount = 0;
@@ -276,7 +162,7 @@ public class AdminDAO implements InterAdminDAO {
         return totalCount;
     }
 
-    // 8. 페이징 처리된 회원 목록 조회
+    // 4. 페이징 처리된 회원 목록 조회
     @Override
     public List<MemberVO> getMemberListWithPaging(Map<String, String> paraMap) throws SQLException {
         List<MemberVO> memberList = new ArrayList<>();
@@ -333,7 +219,7 @@ public class AdminDAO implements InterAdminDAO {
         return memberList;
     }
     
-    // 9. 회원 선택 탈퇴 처리 (Batch 처리)
+    // 5. 회원 선택 탈퇴 처리 (Batch 처리)
     @Override
     public int deleteMember(String[] userids) throws SQLException {
         int result = 0;
@@ -372,7 +258,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
 
-    // 10. 상품 전체 목록 조회
+    // 6. 상품 전체 목록 조회
     @Override
     public List<ProductVO> getProductList(Map<String, String> paraMap) throws SQLException {
         List<ProductVO> productList = new ArrayList<>();
@@ -405,7 +291,7 @@ public class AdminDAO implements InterAdminDAO {
         return productList;
     }
     
-    // 11. 상품 전체 목록 개수 조회 (페이징 계산용)
+    // 7. 상품 전체 목록 개수 조회 (페이징 계산용)
     @Override
     public int getTotalProductCount(Map<String, String> paraMap) throws SQLException {
         int totalCount = 0;
@@ -423,7 +309,7 @@ public class AdminDAO implements InterAdminDAO {
         return totalCount;
     }
 
-    // 12. 페이징 처리된 상품 목록 조회 (10개씩)
+    // 8. 페이징 처리된 상품 목록 조회 (10개씩)
     @Override
     public List<ProductVO> getProductListWithPaging(Map<String, String> paraMap) throws SQLException {
         List<ProductVO> productList = new ArrayList<>();
@@ -473,7 +359,7 @@ public class AdminDAO implements InterAdminDAO {
         return productList;
     }
         
-    // 13. 주문 및 배송 전체 목록 조회
+    // 9. 주문 및 배송 전체 목록 조회
     @Override
     public List<Map<String, String>> getOrderList(Map<String, String> paraMap) throws SQLException {
         List<Map<String, String>> orderList = new ArrayList<>();
@@ -565,7 +451,127 @@ public class AdminDAO implements InterAdminDAO {
         return orderList;
     }
     
-    // 14. 리뷰 전체 목록 조회
+    // 10. 주문 전체 개수 조회 (페이징 계산용)
+    @Override
+    public int getTotalOrderCount(Map<String, String> paraMap) throws SQLException {
+        int totalCount = 0;
+        try {
+            conn = ds.getConnection();
+            String status = paraMap.get("status");
+            
+            String sql = " SELECT count(*) "
+                       + " FROM tbl_order O "
+                       + " LEFT JOIN tbl_delivery D ON O.orderno = D.fk_orderno ";
+            
+            if(status != null && !status.trim().isEmpty()) {
+                if("배송준비중".equals(status)) {
+                    sql += " WHERE D.deliverystatus = '배송준비중' OR D.deliverystatus IS NULL ";
+                } else {
+                    sql += " WHERE D.deliverystatus = ? ";
+                }
+            }
+            
+            pstmt = conn.prepareStatement(sql);
+            if(status != null && !status.trim().isEmpty() && !"배송준비중".equals(status)) {
+                pstmt.setString(1, status);
+            }
+            
+            rs = pstmt.executeQuery();
+            if(rs.next()) {
+                totalCount = rs.getInt(1);
+            }
+        } finally {
+            close();
+        }
+        return totalCount;
+    }
+
+    // 11. 페이징 처리된 주문 목록 조회
+    @Override
+    public List<Map<String, String>> getOrderListWithPaging(Map<String, String> paraMap) throws SQLException {
+        List<Map<String, String>> orderList = new ArrayList<>();
+        try {
+            conn = ds.getConnection();
+            String status = paraMap.get("status");
+            
+            String sql = " SELECT orderno, name, mobile, email, "
+                       + "        postcode, address, detailaddress, extraaddress, "
+                       + "        totalprice, deliverystatus, product_info, total_qty "
+                       + " FROM ( "
+                       + "   SELECT rownum AS rno, V.* "
+                       + "   FROM ( "
+                       + "     SELECT O.orderno, M.name, M.mobile, M.email, "
+                       + "            M.postcode, M.address, M.detailaddress, M.extraaddress, " 
+                       + "            O.totalprice, nvl(D.deliverystatus, '배송준비중') AS deliverystatus, "
+                       + "            ( SELECT LISTAGG(P.productimg || '^^' || P.productname || '^^' || OD.qty || '^^' || OD.unitprice, '~~') "
+                       + "                     WITHIN GROUP (ORDER BY OD.orderdetailno) "
+                       + "              FROM tbl_orderdetail OD "
+                       + "              JOIN tbl_product P ON OD.fk_productno = P.productno "
+                       + "              WHERE OD.fk_orderno = O.orderno ) AS product_info, "
+                       + "            ( SELECT SUM(OD.qty) FROM tbl_orderdetail OD WHERE OD.fk_orderno = O.orderno ) AS total_qty "
+                       + "     FROM tbl_order O "
+                       + "     JOIN tbl_member M ON O.fk_userid = M.userid "
+                       + "     LEFT JOIN tbl_delivery D ON O.orderno = D.fk_orderno ";
+            
+            if(status != null && !status.trim().isEmpty()) {
+                if("배송준비중".equals(status)) {
+                    sql += " WHERE D.deliverystatus = '배송준비중' OR D.deliverystatus IS NULL ";
+                } else {
+                    sql += " WHERE D.deliverystatus = ? ";
+                }
+            }
+            
+            sql += "     ORDER BY O.orderno DESC "
+                 + "   ) V "
+                 + " ) T "
+                 + " WHERE rno BETWEEN ? AND ? ";
+            
+            pstmt = conn.prepareStatement(sql);
+            
+            int idx = 1;
+            if(status != null && !status.trim().isEmpty() && !"배송준비중".equals(status)) {
+                pstmt.setString(idx++, status);
+            }
+            pstmt.setInt(idx++, Integer.parseInt(paraMap.get("startRno")));
+            pstmt.setInt(idx++, Integer.parseInt(paraMap.get("endRno")));
+            
+            rs = pstmt.executeQuery();
+            
+            while(rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("orderno", rs.getString("orderno"));
+                map.put("name", rs.getString("name"));
+                
+                try {
+                    String mobile = rs.getString("mobile");
+                    if(mobile != null) map.put("mobile", aes.decrypt(mobile));
+                    else map.put("mobile", "");
+                } catch (Exception e) { map.put("mobile", rs.getString("mobile")); }
+                
+                try {
+                    String email = rs.getString("email");
+                    if(email != null) map.put("email", aes.decrypt(email));
+                    else map.put("email", "");
+                } catch (Exception e) { map.put("email", rs.getString("email")); }
+
+                map.put("postcode", rs.getString("postcode"));
+                map.put("address", rs.getString("address"));
+                map.put("detailaddress", rs.getString("detailaddress"));
+                map.put("extraaddress", rs.getString("extraaddress"));
+                map.put("totalprice", rs.getString("totalprice"));
+                map.put("deliverystatus", rs.getString("deliverystatus"));
+                map.put("product_info", rs.getString("product_info")); 
+                map.put("total_qty", rs.getString("total_qty"));       
+                
+                orderList.add(map);
+            }
+        } finally {
+            close();
+        }
+        return orderList;
+    }
+    
+    // 12. 리뷰 전체 목록 조회
     @Override
     public List<Map<String, String>> getReviewList(Map<String, String> paraMap) throws SQLException {
         List<Map<String, String>> reviewList = new ArrayList<>();
@@ -597,7 +603,7 @@ public class AdminDAO implements InterAdminDAO {
         return reviewList;
     }
     
-    // 15. 질문 전체 목록 조회
+    // 13. 질문 전체 목록 조회
     @Override
     public List<InquiryVO> getInquiryList(Map<String, String> paraMap) throws SQLException {
         List<InquiryVO> inquiryList = new ArrayList<>();
@@ -626,7 +632,7 @@ public class AdminDAO implements InterAdminDAO {
         return inquiryList;
     }
     
-    // 16. 상품 및 트랙 동시 등록
+    // 14. 상품 및 트랙 동시 등록
     @Override
     public int insertProductWithTracks(ProductVO pvo, String[] trackTitles) throws SQLException {
         int result = 0;
@@ -693,7 +699,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 17. 상품 정보 수정
+    // 15. 상품 정보 수정
     @Override
     public int updateProduct(ProductVO pvo) throws SQLException {
         int result = 0;
@@ -723,7 +729,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
 
-    // 18. 상품 삭제
+    // 16. 상품 삭제
     @Override
     public int deleteProduct(String[] pnums) throws SQLException {
         int result = 0;
@@ -760,7 +766,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 19. 배송 시작 처리 (수정완료: 배송정보가 없으면 INSERT, 있으면 UPDATE)
+    // 17. 배송 시작 처리 (수정완료: 배송정보가 없으면 INSERT, 있으면 UPDATE)
     @Override
     public int updateDeliveryStart(Map<String, String> paraMap) throws SQLException {
         int result = 0;
@@ -822,7 +828,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 20. 관리자 배송 주소 수정 메서드 
+    // 18. 관리자 배송 주소 수정 메서드 
     @Override
     public int updateOrderAddress(Map<String, String> paraMap) throws SQLException {
         int result = 0;
@@ -846,7 +852,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 21. 배송 완료 처리 메서드
+    // 19. 배송 완료 처리 메서드
     @Override
     public int updateDeliveryEnd(String orderno) throws SQLException {
         int result = 0;
@@ -868,7 +874,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 22. 리뷰 선택 삭제
+    // 20. 리뷰 선택 삭제
     @Override
     public int deleteMultiReviews(String[] reviewNos) throws SQLException {
         int result = 0;
@@ -893,7 +899,7 @@ public class AdminDAO implements InterAdminDAO {
         return result;
     }
     
-    // 23. 리뷰 총 개수 조회
+    // 21. 리뷰 총 개수 조회
     @Override
     public int getTotalReviewCount(Map<String, String> paraMap) throws SQLException {
         int totalCount = 0;
@@ -907,7 +913,7 @@ public class AdminDAO implements InterAdminDAO {
         return totalCount;
     }
 
-    // 24. 페이징 처리된 리뷰 목록 조회
+    // 22. 페이징 처리된 리뷰 목록 조회
     @Override
     public List<Map<String, String>> getReviewListWithPaging(Map<String, String> paraMap) throws SQLException {
         List<Map<String, String>> reviewList = new ArrayList<>();
@@ -944,7 +950,7 @@ public class AdminDAO implements InterAdminDAO {
         return reviewList;
     }
     
-    // 25. 문의 총 개수 조회
+    // 23. 문의 총 개수 조회
     @Override
     public int getTotalInquiryCount(Map<String, String> paraMap) throws SQLException {
         int totalCount = 0;
@@ -958,7 +964,7 @@ public class AdminDAO implements InterAdminDAO {
         return totalCount;
     }
 
-    // 26. 페이징 처리된 문의 목록 조회
+    // 24. 페이징 처리된 문의 목록 조회
     @Override
     public List<InquiryVO> getInquiryListWithPaging(Map<String, String> paraMap) throws SQLException {
         List<InquiryVO> inquiryList = new ArrayList<>();
@@ -994,7 +1000,7 @@ public class AdminDAO implements InterAdminDAO {
         return inquiryList;
     }
     
-    // 27. 문의 답변 등록 및 수정
+    // 25. 문의 답변 등록 및 수정
     @Override
     public int replyInquiry(String inquiryno, String adminreply) throws SQLException {
         int result = 0;
@@ -1011,5 +1017,119 @@ public class AdminDAO implements InterAdminDAO {
             result = pstmt.executeUpdate();
         } finally { close(); }
         return result;
+    }
+    
+    // 26. 오늘 매출 조회
+    @Override
+    public int getTodaySales() throws SQLException {
+        int todaySales = 0;
+        try {
+            conn = ds.getConnection();
+            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
+                       + " FROM tbl_order A JOIN tbl_delivery B "
+                       + " ON A.orderno = B.fk_orderno "
+                       + " WHERE to_char(A.orderdate, 'yyyy-mm-dd') = to_char(sysdate, 'yyyy-mm-dd') "
+                       + " AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "; 
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                todaySales = rs.getInt(1);
+            }
+        } finally {
+            close();
+        }
+        return todaySales;
+    }
+
+    // 27. 이번 달 매출 조회
+    @Override
+    public int getMonthSales() throws SQLException {
+        int monthSales = 0;
+        try {
+            conn = ds.getConnection();
+            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
+                       + " FROM tbl_order A JOIN tbl_delivery B "
+                       + " ON A.orderno = B.fk_orderno "
+                       + " WHERE to_char(A.orderdate, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm') "
+                       + " AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') ";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                monthSales = rs.getInt(1);
+            }
+        } finally {
+            close();
+        }
+        return monthSales;
+    }
+
+    // 28. 총 누적 매출 조회
+    @Override
+    public long getTotalSales() throws SQLException {
+        long totalSales = 0;
+        try {
+            conn = ds.getConnection();
+            String sql = " SELECT nvl(SUM(A.totalprice), 0) "
+                       + " FROM tbl_order A JOIN tbl_delivery B "
+                       + " ON A.orderno = B.fk_orderno "
+                       + " WHERE B.deliverystatus IN ('배송준비중', '배송중', '배송완료') ";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                totalSales = rs.getLong(1);
+            }
+        } finally {
+            close();
+        }
+        return totalSales;
+    }
+
+    // 29. 차트용 데이터 조회 (월별/연도별)
+    @Override
+    public List<Map<String, String>> getSalesChartData(Map<String, String> paraMap) throws SQLException {
+        List<Map<String, String>> chartList = new ArrayList<>();
+        try {
+            conn = ds.getConnection();
+            String searchType = paraMap.get("searchType");
+            String sql = "";
+            
+            if("month".equals(searchType)) {
+                sql = " SELECT to_char(A.orderdate, 'yyyy-mm') AS label, "
+                    + "        nvl(sum(A.totalprice), 0) AS amount "
+                    + " FROM tbl_order A JOIN tbl_delivery B "
+                    + " ON A.orderno = B.fk_orderno "
+                    + " WHERE to_char(A.orderdate, 'yyyy-mm') BETWEEN ? AND ? "
+                    + "   AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "
+                    + " GROUP BY to_char(A.orderdate, 'yyyy-mm') "
+                    + " ORDER BY label ASC ";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, paraMap.get("startDate"));
+                pstmt.setString(2, paraMap.get("endDate"));
+            } 
+            else {
+                sql = " SELECT to_char(A.orderdate, 'yyyy') AS label, "
+                    + "        nvl(sum(A.totalprice), 0) AS amount "
+                    + " FROM tbl_order A JOIN tbl_delivery B "
+                    + " ON A.orderno = B.fk_orderno "
+                    + " WHERE to_char(A.orderdate, 'yyyy') BETWEEN ? AND ? "
+                    + "   AND B.deliverystatus IN ('배송준비중', '배송중', '배송완료') "
+                    + " GROUP BY to_char(A.orderdate, 'yyyy') "
+                    + " ORDER BY label ASC ";
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, paraMap.get("startYear"));
+                pstmt.setString(2, paraMap.get("endYear"));
+            }
+            
+            rs = pstmt.executeQuery();
+            while(rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("label", rs.getString("label"));
+                map.put("amount", rs.getString("amount"));
+                chartList.add(map);
+            }
+        } finally {
+            close();
+        }
+        return chartList;
     }
 }

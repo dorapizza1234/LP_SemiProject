@@ -16,7 +16,7 @@ public class Admin_order extends AbstractController {
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         
         // =============================================================
-        // 관리자 로그인 여부 확인 (Security Check)
+        // 관리자 로그인 여부 확인
         // =============================================================
         HttpSession session = request.getSession();
         AdminVO loginAdmin = (AdminVO) session.getAttribute("loginAdmin"); 
@@ -33,27 +33,23 @@ public class Admin_order extends AbstractController {
             return; 
         }
 
-        // =============================================================
-        // 2. 기존 주문/배송 관리 로직 수행
-        // =============================================================
         String method = request.getMethod();
-        String mode = request.getParameter("mode");
+        String mode = request.getParameter("mode"); 
         
         InterAdminDAO adao = new AdminDAO();
-        
-        // [수정됨] JS의 "mode": "updateDeliveryStart" 와 일치시킴
-        if("POST".equalsIgnoreCase(method) && "updateDeliveryStart".equals(mode)) {
+
+        // [기능 2] 배송 시작 처리 (Ajax)
+        if("POST".equalsIgnoreCase(method) && "deliveryStart".equals(mode)) {
             String orderno = request.getParameter("orderno");
             String invoice_no = request.getParameter("invoice_no");
             String delivery_company = request.getParameter("delivery_company");
-            String receiverName = request.getParameter("receiverName");
             
             Map<String, String> paraMap = new HashMap<>();
             paraMap.put("orderno", orderno);
             paraMap.put("invoice_no", invoice_no);
             paraMap.put("delivery_company", delivery_company);
-            paraMap.put("receiverName", receiverName);
             
+            // DAO 호출 (배송정보 Insert or Update)
             int n = adao.updateDeliveryStart(paraMap); 
             
             JSONObject jsonObj = new JSONObject();
@@ -65,32 +61,14 @@ public class Admin_order extends AbstractController {
             super.setViewPage("/WEB-INF/jsonview.jsp");
         }
         
-        // [기능 3] 배송 완료 처리 (AJAX)
-        else if("POST".equalsIgnoreCase(method) && "updateDeliveryEnd".equals(mode)) {
-            String orderno = request.getParameter("orderno");
-            
-            int n = adao.updateDeliveryEnd(orderno); 
-            
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("result", n); 
-            
-            request.setAttribute("json", jsonObj.toString());
-            
-            super.setRedirect(false);
-            super.setViewPage("/WEB-INF/jsonview.jsp");
-        }
-        
-        // [기능 4] 배송지 주소 수정 (AJAX) - 이 부분을 추가하세요
+        // [기능 3] 배송 주소 수정 (Ajax)
         else if("POST".equalsIgnoreCase(method) && "updateOrderAddress".equals(mode)) {
-            
-            // 1. JS에서 보낸 파라미터 받기
             String orderno = request.getParameter("orderno");
             String postcode = request.getParameter("postcode");
             String address = request.getParameter("address");
             String detailaddress = request.getParameter("detailaddress");
             String extraaddress = request.getParameter("extraaddress");
             
-            // 2. DAO로 넘길 Map 생성
             Map<String, String> paraMap = new HashMap<>();
             paraMap.put("orderno", orderno);
             paraMap.put("postcode", postcode);
@@ -98,10 +76,8 @@ public class Admin_order extends AbstractController {
             paraMap.put("detailaddress", detailaddress);
             paraMap.put("extraaddress", extraaddress);
             
-            // 3. DAO 메소드 호출 (이미 구현되어 있음)
             int n = adao.updateOrderAddress(paraMap); 
             
-            // 4. 결과 JSON 반환
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("result", n); 
             
@@ -111,21 +87,98 @@ public class Admin_order extends AbstractController {
             super.setViewPage("/WEB-INF/jsonview.jsp");
         }
 
-        // [참고] JS에 있는 "주소 수정(updateOrderAddress)" 로직은 현재 Java 파일에 없습니다.
-        // 만약 주소 수정 기능도 구현 중이시라면, 이곳에 else if 블록을 추가해야 합니다.
-        
-        // [기능 1] 주문 전체 목록 조회 + 필터링 (기본 페이지 이동)
+        // [기능 1] 주문 전체 목록 조회 + 필터링 + 페이징 (수정됨)
         else {
-            Map<String, String> paraMap = new HashMap<>();
             String status = request.getParameter("status");
+            String str_currentShowPageNo = request.getParameter("currentShowPageNo");
             
+            int currentShowPageNo = 0;
+            try {
+                if(str_currentShowPageNo == null) currentShowPageNo = 1;
+                else currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+            } catch(NumberFormatException e) {
+                currentShowPageNo = 1;
+            }
+            
+            int sizePerPage = 10; // 한 페이지당 10개씩
+            
+            Map<String, String> paraMap = new HashMap<>();
             if(status != null && !status.trim().isEmpty()) {
                 paraMap.put("status", status);
             }
             
-            List<Map<String, String>> orderList = adao.getOrderList(paraMap);
+            // 1. 총 주문 건수 구하기
+            int totalCount = adao.getTotalOrderCount(paraMap);
+            int totalPage = (int) Math.ceil((double)totalCount/sizePerPage);
+            
+            if(currentShowPageNo < 1) currentShowPageNo = 1;
+            if(currentShowPageNo > totalPage) currentShowPageNo = totalPage;
+            
+            int startRno = ((currentShowPageNo - 1) * sizePerPage) + 1;
+            int endRno = startRno + sizePerPage - 1;
+            
+            paraMap.put("startRno", String.valueOf(startRno));
+            paraMap.put("endRno", String.valueOf(endRno));
+            
+            // 2. 페이징된 주문 목록 가져오기
+            List<Map<String, String>> orderList = adao.getOrderListWithPaging(paraMap);
+            
+            // 3. 페이징 바 생성 (회원/상품 관리와 동일한 로직)
+            int blockSize = 10;
+            int startPage = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
+            int endPage = startPage + blockSize - 1;
+            
+            if(endPage > totalPage) {
+                endPage = totalPage;
+            }
+            
+            String url = "admin_order.lp";
+            String searchParam = "";
+            if(status != null && !status.trim().isEmpty()) {
+                searchParam = "&status=" + status;
+            }
+            
+            String pageBar = "";
+            
+            // [맨처음]
+            if(currentShowPageNo > 1) {
+                 pageBar += "<a href='"+url+"?currentShowPageNo=1"+searchParam+"' class='page-first'>맨처음</a>";
+            } else {
+                 pageBar += "<span class='page-first disabled'>맨처음</span>";
+            }
+
+            // [<] 이전 (1페이지씩 이동)
+            if(currentShowPageNo > 1) {
+                pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo-1)+searchParam+"' class='page-prev'>&lt;</a>";
+            } else {
+                pageBar += "<span class='page-prev disabled'>&lt;</span>";
+            }
+            
+            // [페이지 번호]
+            for(int i = startPage; i <= endPage; i++) {
+                if(i == currentShowPageNo) {
+                    pageBar += "<span class='active'>"+i+"</span>";
+                } else {
+                    pageBar += "<a href='"+url+"?currentShowPageNo="+i+searchParam+"'>"+i+"</a>";
+                }
+            }
+            
+            // [>] 다음 (1페이지씩 이동)
+            if(currentShowPageNo < totalPage) {
+                 pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo+1)+searchParam+"' class='page-next'>&gt;</a>";
+            } else {
+                 pageBar += "<span class='page-next disabled'>&gt;</span>";
+            }
+            
+            // [맨마지막]
+            if(currentShowPageNo < totalPage) {
+                pageBar += "<a href='"+url+"?currentShowPageNo="+totalPage+searchParam+"' class='page-last'>맨마지막</a>";
+            } else {
+                 pageBar += "<span class='page-last disabled'>맨마지막</span>";
+            }
             
             request.setAttribute("orderList", orderList);
+            request.setAttribute("pageBar", pageBar);
             request.setAttribute("status", status); 
             
             super.setRedirect(false);

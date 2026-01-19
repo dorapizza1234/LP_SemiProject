@@ -1,6 +1,8 @@
 @charset "UTF-8";
 
-/* 컨트롤 영역 */
+/* =========================================
+   1. 컨트롤 영역 (검색창, 버튼)
+   ========================================= */
 .member-control {
     display: flex;
     justify-content: space-between;
@@ -11,74 +13,163 @@
 /* 검색 박스 */
 .search-box {
     display: flex;
-    gap: 5px;
+    gap: 0; 
     align-items: center;
 }
 
-.search-box select, 
-.search-box input {
-    height: 36px;
+.search-box select {
+    height: 40px;
     padding: 0 10px;
     border: 1px solid #ccc;
-    border-radius: 0; /* 사각형 */
+    border-right: none; 
+    border-radius: 0; 
     box-sizing: border-box;
     font-size: 13px;
+    outline: none;
 }
 
-.search-box input { width: 220px; }
+.search-box input {
+    width: 220px;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    box-sizing: border-box;
+    font-size: 13px;
+    outline: none;
+}
 
-/* 버튼 스타일 */
+/* 버튼 공통 스타일 */
 button {
-    height: 36px;
+    height: 40px;
     cursor: pointer;
     font-size: 13px;
     border-radius: 0;
     border: none;
-    padding: 0 16px;
+    padding: 0 20px;
+    font-family: 'Pretendard', sans-serif;
 }
 
 .btn-search {
-    background: #555;
+    background: #222; /* 진한 검정 */
     color: #fff;
+    transition: background 0.2s;
 }
-.btn-search:hover { background: #333; }
+.btn-search:hover { background: #000; }
 
 .btn-delete {
-    background-color: #333;
-    color: #fff;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    transition: all 0.2s;
 }
 .btn-delete:hover {
-    background-color: #000;
+    background-color: #f1f1f1;
+    border-color: #bbb;
 }
 
-/* 테이블 스타일 */
+/* =========================================
+   2. 테이블 스타일
+   ========================================= */
 .member-table { 
     width: 100%; 
     border-collapse: collapse; 
     font-size: 13px;
     text-align: center;
+    border-top: 2px solid #222; 
 }
 
 .member-table th { 
-    background-color: #f8f8f8; 
+    background-color: #f9f9f9; 
     color: #333;
-    font-weight: 600;
-    padding: 12px 10px;
-    border-top: 1px solid #ddd;
+    font-weight: 700;
+    padding: 14px 10px;
     border-bottom: 1px solid #ddd;
 }
 
 .member-table td {
-    padding: 12px 10px;
+    padding: 14px 10px;
     border-bottom: 1px solid #eee;
     color: #444;
 }
 
 /* 상태 표시 */
-.status-active { color: #28a745; font-weight: 700; }
-.status-out { color: #dc3545; font-weight: 700; }
+.status-active { color: #28a745; font-weight: 600; }
+.status-out { color: #dc3545; font-weight: 600; }
 
-/* 체크박스 */
 input[type="checkbox"] {
-    width: 14px; height: 14px; margin: 0; vertical-align: middle; cursor: pointer;
+    width: 16px; height: 16px; margin: 0; vertical-align: middle; cursor: pointer;
+    accent-color: #222;
+}
+
+/* =========================================
+   3. 페이지네이션 (Index 스타일 강제 적용)
+   ========================================= */
+/* 컨테이너 스타일 */
+.pagination {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    margin: 50px 0 !important;
+    gap: 0 !important; /* 버튼 사이 간격 제거 (border 겹침 방지용) */
+    list-style: none !important;
+}
+
+/* 버튼 공통 (링크 a, 현재페이지 span 모두) */
+.pagination a, 
+.pagination span {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    
+    width: 34px !important;      /* 정사각형 너비 고정 */
+    height: 34px !important;     /* 정사각형 높이 고정 */
+    padding: 0 !important;
+    margin: 0 2px !important;    /* 버튼 사이 간격 미세 조정 */
+    
+    background-color: #fff !important; 
+    border: 1px solid #e5e5e5 !important; 
+    color: #555 !important; 
+    
+    font-size: 13px !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+    border-radius: 0 !important; /* ★완벽한 사각형★ */
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+/* 텍스트 버튼 (맨처음, 맨마지막 등) 너비 자동 조절 */
+.pagination a.page-first, 
+.pagination a.page-last,
+.pagination span.page-first, 
+.pagination span.page-last {
+    width: auto !important;     
+    padding: 0 10px !important; 
+    font-size: 12px !important;
+}
+
+/* ★ 호버 효과 (마우스 올렸을 때) ★ */
+.pagination a:hover {
+    background-color: #222 !important; /* 배경 검정 */
+    color: #fff !important;            /* 글자 흰색 */
+    border-color: #222 !important;
+}
+
+/* ★ 현재 페이지 (Active) ★ */
+.pagination span.active {
+    background-color: #222 !important; /* 배경 검정 */
+    color: #fff !important;            /* 글자 흰색 */
+    border-color: #222 !important;     /* 테두리 검정 */
+    font-weight: 600 !important;
+    cursor: default !important;
+}
+
+/* 비활성 버튼 (Disabled) */
+.pagination span.disabled {
+    color: #ccc !important;
+    background-color: #f9f9f9 !important;
+    border-color: #eee !important;
+    cursor: default !important;
 }

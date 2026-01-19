@@ -70,15 +70,6 @@
 .btn-remove { color: #d9534f; border-color: #d9534f !important; }
 
 /* =====================
-   PAGINATION
-===================== */
-.pagination { text-align: center; margin-top: 30px; }
-.pagination a {
-    display: inline-block; padding: 5px 10px; border: 1px solid #ddd; color: #555; text-decoration: none; margin: 0 2px;
-}
-.pagination a.active { background: #333; color: #fff; border-color: #333; }
-
-/* =====================
    MODAL POPUP
 ===================== */
 .modal-overlay {
@@ -116,60 +107,3 @@
 }
 .btn-submit-modal { background: #333; color: #fff; padding: 8px 20px; border: none; cursor: pointer; }
 .btn-cancel-modal { background: #fff; border: 1px solid #ccc; padding: 8px 15px; margin-right: 5px; cursor: pointer; }
-
-/* ==========================================================================
-   [추가] 페이지네이션 (Seoul Vinyl Style)
-   ========================================================================== */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 40px; /* 리스트와의 간격 */
-  margin-bottom: 60px; /* 푸터와의 간격 */
-  gap: 8px; /* 버튼 사이 간격 */
-}
-
-/* 기본 버튼 스타일 (숫자, 화살표 공통) */
-.pagination a,
-.pagination span {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 32px; /* 정사각형 형태 */
-  height: 32px;
-  padding: 0 6px;
-  
-  font-size: 13px;
-  font-family: 'Arial', sans-serif;
-  color: #888; /* 기본 회색 텍스트 */
-  text-decoration: none;
-  
-  background-color: #fff;
-  border: 1px solid #e0e0e0; /* 연한 테두리 */
-  border-radius: 0; /* 완전 사각형 (원하면 4px 등으로 수정) */
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-/* 마우스 올렸을 때 */
-.pagination a:hover {
-  border-color: #333;
-  color: #333;
-}
-
-/* 현재 활성화된 페이지 (검정 배경) */
-.pagination a.active,
-.pagination span.active {
-  background-color: #222;
-  border-color: #222;
-  color: #fff;
-  font-weight: 600;
-  cursor: default;
-  pointer-events: none; /* 클릭 방지 */
-}
-
-/* 이전/다음 버튼 (화살표) */
-.pagination .direction {
-  color: #333;
-  font-size: 14px;
-}

@@ -23,7 +23,7 @@
 <script>
     const ctxPath = "<%= ctxPath %>";
     
-    // 송장번호 길이 제한 로직 (단순 이벤트 핸들러라 여기에 남김, 필요 시 JS 파일 이동 가능)
+    // 송장번호 길이 제한 로직
     function updateMaxLength(orderno) {
         const company = $("#company_" + orderno).val();
         const $invoiceInput = $("#invoice_" + orderno);
@@ -127,20 +127,24 @@
                             <c:set var="info" value="${fn:split(itemStr, '^^')}" />
                             
                             <div style="display:flex; align-items:center;">
-                                <%-- 이미지 --%>
+                                <%-- 이미지 처리 (경로 정규화 적용) --%>
                                 <c:set var="imgVal" value="${fn:trim(info[0])}" />
+                                
+                                <c:if test="${fn:contains(imgVal, 'images/productimg')}">
+                                    <c:set var="imgVal" value="${fn:replace(imgVal, '/images/productimg/', '')}" />
+                                    <c:set var="imgVal" value="${fn:replace(imgVal, 'images/productimg/', '')}" />
+                                </c:if>
+                               
                                 <c:choose>
                                     <c:when test="${empty imgVal}">
                                          <div style="width:40px; height:40px; background:#eee; border-radius:4px; margin-right:10px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Img</div>
                                     </c:when>
-                                    <c:when test="${fn:startsWith(imgVal, '/images')}">
-                                        <img src="${pageContext.request.contextPath}${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
-                                    </c:when>
                                     <c:otherwise>
-                                        <img src="${pageContext.request.contextPath}/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                         <%-- 정규화된 파일명으로 경로 재조립 --%>
+                                         <img src="<%= ctxPath%>/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
                                     </c:otherwise>
                                 </c:choose>
-                                
+                                     
                                 <div style="flex:1;">
                                     <div style="font-size:13px; font-weight:bold; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:280px;">
                                         ${info[1]}
@@ -160,16 +164,19 @@
                                         <c:set var="info" value="${fn:split(itemStr, '^^')}" />
                                         
                                         <div style="display:flex; align-items:center; margin-top:8px;">
+                                             <%-- 이미지 처리 (경로 정규화 적용) --%>
                                              <c:set var="imgVal" value="${fn:trim(info[0])}" />
+                                             <c:if test="${fn:contains(imgVal, 'images/productimg')}">
+                                                 <c:set var="imgVal" value="${fn:replace(imgVal, '/images/productimg/', '')}" />
+                                                 <c:set var="imgVal" value="${fn:replace(imgVal, 'images/productimg/', '')}" />
+                                             </c:if>
+
                                              <c:choose>
                                                  <c:when test="${empty imgVal}">
                                                       <div style="width:40px; height:40px; background:#eee; border-radius:4px; margin-right:10px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Img</div>
                                                  </c:when>
-                                                 <c:when test="${fn:startsWith(imgVal, '/images')}">
-                                                     <img src="${pageContext.request.contextPath}${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
-                                                 </c:when>
                                                  <c:otherwise>
-                                                     <img src="${pageContext.request.contextPath}/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
+                                                      <img src="<%= ctxPath%>/images/productimg/${imgVal}" width="40" height="40" style="object-fit:cover; border-radius:4px; margin-right:10px; border:1px solid #ddd; background:#f8f8f8;">
                                                  </c:otherwise>
                                              </c:choose>
                                              
@@ -244,6 +251,12 @@
             </c:forEach>
         </tbody>
       </table>
+
+      <%-- [추가] 페이징 바 영역 --%>
+      <div class="pagination">
+        ${requestScope.pageBar}
+      </div>
+
     </section>
   </div>
 </main>

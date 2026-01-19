@@ -43,6 +43,7 @@
                 <option value="userid" ${requestScope.searchType == 'userid' ? 'selected' : ''}>아이디</option>
                 <option value="name" ${requestScope.searchType == 'name' ? 'selected' : ''}>성명</option>
             </select>
+      
             <input type="text" name="searchWord" value="${requestScope.searchWord}" placeholder="검색어를 입력하세요">
             <button type="button" class="btn-search">검색</button>
         </form>
@@ -53,7 +54,8 @@
       <form name="memberFrm">
           <table class="member-table">
             <colgroup>
-                <col width="5%">  <col width="8%">  <col width="15%"> <col width="10%"> <col width="20%"> <col width="15%"> <col width="15%"> <col width="10%"> 
+                <col width="5%">  
+                <col width="8%">  <col width="15%"> <col width="10%"> <col width="20%"> <col width="15%"> <col width="15%"> <col width="10%"> 
             </colgroup>
             <thead>
               <tr>
@@ -79,14 +81,14 @@
               <%-- 회원 리스트 반복 출력 --%>
               <c:forEach var="mvo" items="${requestScope.memberList}" varStatus="status">
                   <tr>
-                    <td>
+                     <td>
                         <%-- 관리자 계정(admin)은 삭제 불가하도록 체크박스 숨김 --%>
                         <c:if test="${mvo.userid != 'admin'}">
                             <input type="checkbox" name="userid" value="${mvo.userid}">
-                        </c:if>
+                         </c:if>
                     </td>
                     
-                    <%-- [수정 완료] 오름차순 번호 출력 (시작값 + 현재인덱스) --%>
+                    <%-- 오름차순 번호 출력 (시작값 + 현재인덱스) --%>
                     <td>${requestScope.startIter + status.index}</td>
                     
                     <td>${mvo.userid}</td>
@@ -97,13 +99,13 @@
                     
                     <td>
                         <c:choose>
-                            <c:when test="${mvo.status == 1}">
+                             <c:when test="${mvo.status == 1}">
                                 <span class="status-active">활동중</span>
                             </c:when>
                             <c:otherwise>
                                 <span class="status-out">탈퇴</span>
                             </c:otherwise>
-                        </c:choose>
+                         </c:choose>
                     </td>
                   </tr>
               </c:forEach>

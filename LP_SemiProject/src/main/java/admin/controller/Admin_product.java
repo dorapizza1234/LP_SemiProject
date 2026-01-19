@@ -64,66 +64,95 @@ public class Admin_product extends AbstractController {
         }
     }
 
-    // [기능 1] 상품 목록 조회
-    private void listProduct(HttpServletRequest request, HttpServletResponse response, InterAdminDAO adao) throws Exception {
-        
-        String str_currentShowPageNo = request.getParameter("currentShowPageNo");
-        int currentShowPageNo = 0;
-        
-        try {
-            if(str_currentShowPageNo == null) currentShowPageNo = 1;
-            else currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
-        } catch(NumberFormatException e) {
-            currentShowPageNo = 1;
-        }
-        
-        int sizePerPage = 10; 
-        Map<String, String> paraMap = new HashMap<>();
-        
-        int totalCount = adao.getTotalProductCount(paraMap); 
-        int totalPage = (int) Math.ceil((double)totalCount/sizePerPage);
-        
-        if(currentShowPageNo < 1) currentShowPageNo = 1;
-        if(currentShowPageNo > totalPage) currentShowPageNo = totalPage;
-        
-        int startRno = ((currentShowPageNo - 1) * sizePerPage) + 1;
-        int endRno = startRno + sizePerPage - 1;
-        
-        paraMap.put("startRno", String.valueOf(startRno));
-        paraMap.put("endRno", String.valueOf(endRno));
-        
-        List<ProductVO> productList = adao.getProductListWithPaging(paraMap);
-        
-        // 페이지바
-        String pageBar = "";
-        int blockSize = 10;
-        int loop = 1;
-        int pageNo = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
-        String url = "admin_product.lp";
-        
-        if(pageNo != 1) {
-            pageBar += "<a href='"+url+"?currentShowPageNo="+(pageNo-1)+"' class='direction'>&lt;</a>";
-        }
-        while( !(loop > blockSize || pageNo > totalPage) ) {
-            if(pageNo == currentShowPageNo) {
-                pageBar += "<span class='active'>"+pageNo+"</span>";
-            } else {
-                pageBar += "<a href='"+url+"?currentShowPageNo="+pageNo+"'>"+pageNo+"</a>";
-            }
-            loop++;
-            pageNo++;
-        }
-        if(pageNo <= totalPage) {
-            pageBar += "<a href='"+url+"?currentShowPageNo="+pageNo+"' class='direction'>&gt;</a>";
-        }
-        
-        request.setAttribute("productList", productList);
-        request.setAttribute("pageBar", pageBar);
-        request.setAttribute("totalCount", totalCount);
-        
-        super.setRedirect(false);
-        super.setViewPage("/WEB-INF/admin/admin_product.jsp");
-    }
+	// [기능 1] 상품 목록 조회
+	    private void listProduct(HttpServletRequest request, HttpServletResponse response, InterAdminDAO adao) throws Exception {
+	        
+	        String str_currentShowPageNo = request.getParameter("currentShowPageNo");
+	        int currentShowPageNo = 0;
+	        
+	        try {
+	            if(str_currentShowPageNo == null) currentShowPageNo = 1;
+	            else currentShowPageNo = Integer.parseInt(str_currentShowPageNo);
+	        } catch(NumberFormatException e) {
+	            currentShowPageNo = 1;
+	        }
+	        
+	        int sizePerPage = 10; 
+	        Map<String, String> paraMap = new HashMap<>();
+	        
+	        int totalCount = adao.getTotalProductCount(paraMap); 
+	        int totalPage = (int) Math.ceil((double)totalCount/sizePerPage);
+	        
+	        if(currentShowPageNo < 1) currentShowPageNo = 1;
+	        if(currentShowPageNo > totalPage) currentShowPageNo = totalPage;
+	        
+	        int startRno = ((currentShowPageNo - 1) * sizePerPage) + 1;
+	        int endRno = startRno + sizePerPage - 1;
+	        
+	        paraMap.put("startRno", String.valueOf(startRno));
+	        paraMap.put("endRno", String.valueOf(endRno));
+	        
+	        List<ProductVO> productList = adao.getProductListWithPaging(paraMap);
+	        
+	        // ==================================================================
+	        // [수정 포인트] 회원관리와 동일한 페이징 바 생성 (맨처음, 이전, 다음, 맨마지막)
+	        // ==================================================================
+	        
+	        int blockSize = 10; 
+	        int startPage = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
+	        int endPage = startPage + blockSize - 1;
+	        
+	        if(endPage > totalPage) {
+	            endPage = totalPage;
+	        }
+	        
+	        String url = "admin_product.lp";
+	        String pageBar = "";
+	        
+	        // 1. [맨처음]
+	        if(currentShowPageNo > 1) {
+	             pageBar += "<a href='"+url+"?currentShowPageNo=1' class='page-first'>맨처음</a>";
+	        } else {
+	             pageBar += "<span class='page-first disabled'>맨처음</span>";
+	        }
+
+	        // 2. [<] 이전 (1페이지씩 이동)
+	        if(currentShowPageNo > 1) {
+	            pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo-1)+"' class='page-prev'>&lt;</a>";
+	        } else {
+	            pageBar += "<span class='page-prev disabled'>&lt;</span>";
+	        }
+	        
+	        // 3. [페이지 번호]
+	        for(int i = startPage; i <= endPage; i++) {
+	            if(i == currentShowPageNo) {
+	                pageBar += "<span class='active'>"+i+"</span>";
+	            } else {
+	                pageBar += "<a href='"+url+"?currentShowPageNo="+i+"'>"+i+"</a>";
+	            }
+	        }
+	        
+	        // 4. [>] 다음 (1페이지씩 이동)
+	        if(currentShowPageNo < totalPage) {
+	             pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo+1)+"' class='page-next'>&gt;</a>";
+	        } else {
+	             pageBar += "<span class='page-next disabled'>&gt;</span>";
+	        }
+	        
+	        // 5. [맨마지막]
+	        if(currentShowPageNo < totalPage) {
+	            pageBar += "<a href='"+url+"?currentShowPageNo="+totalPage+"' class='page-last'>맨마지막</a>";
+	        } else {
+	             pageBar += "<span class='page-last disabled'>맨마지막</span>";
+	        }
+	        
+	        request.setAttribute("productList", productList);
+	        request.setAttribute("pageBar", pageBar);
+	        request.setAttribute("totalCount", totalCount);
+	        
+	        super.setRedirect(false);
+	        super.setViewPage("/WEB-INF/admin/admin_product.jsp");
+	    }
 
     // [기능 2] 상품 등록
     private void registerProduct(HttpServletRequest request, HttpServletResponse response, InterAdminDAO adao) throws Exception {

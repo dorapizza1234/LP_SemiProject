@@ -17,45 +17,37 @@ public class Admin_inquiry extends AbstractController {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	
-    // =============================================================
-    // 관리자 로그인 여부 확인
-    // =============================================================
-    HttpSession session = request.getSession();
-    AdminVO loginadmin = (AdminVO) session.getAttribute("loginAdmin"); 
+        
+        HttpSession session = request.getSession();
+        AdminVO loginadmin = (AdminVO) session.getAttribute("loginAdmin"); 
 
-    if (loginadmin == null) {
-        String message = "관리자만 접근 가능합니다.";
-        String loc = request.getContextPath() + "/admin/admin_login.lp"; 
-        
-        request.setAttribute("message", message);
-        request.setAttribute("loc", loc);
-        
-        super.setRedirect(false);
-        super.setViewPage("/WEB-INF/msg.jsp");
-        return;
-    }
+        if (loginadmin == null) {
+            String message = "관리자만 접근 가능합니다.";
+            String loc = request.getContextPath() + "/admin/admin_login.lp"; 
+            
+            request.setAttribute("message", message);
+            request.setAttribute("loc", loc);
+            
+            super.setRedirect(false);
+            super.setViewPage("/WEB-INF/msg.jsp");
+            return;
+        }
 
         String method = request.getMethod();
-        
         InterAdminDAO adao = new AdminDAO();
         
-        // 1. 답변 등록 (POST 방식)
         if("POST".equalsIgnoreCase(method)) {
             replyInquiry(request, response, adao);
-        }
-        // 2. 문의 목록 조회 (GET 방식)
-        else {
+        } else {
             listInquiry(request, response, adao);
         }
     }
     
-    // [기능 1] 문의 목록 조회 (페이징 + 오름차순)
+    // [기능 1] 문의 목록 조회
     private void listInquiry(HttpServletRequest request, HttpServletResponse response, InterAdminDAO adao) throws Exception {
         
         Map<String, String> paraMap = new HashMap<>();
         
-        // 1. 페이지 번호 설정
         String str_currentShowPageNo = request.getParameter("currentShowPageNo");
         int currentShowPageNo = 0;
         
@@ -66,49 +58,72 @@ public class Admin_inquiry extends AbstractController {
             currentShowPageNo = 1;
         }
         
-        int sizePerPage = 10; // 페이지당 10개
+        int sizePerPage = 10; 
         
-        // 2. 전체 개수 및 페이지 수 계산
         int totalCount = adao.getTotalInquiryCount(paraMap);
         int totalPage = (int) Math.ceil((double)totalCount/sizePerPage);
         
         if(currentShowPageNo < 1) currentShowPageNo = 1;
         if(currentShowPageNo > totalPage) currentShowPageNo = totalPage;
         
-        // 3. DB 조회 범위
         int startRno = ((currentShowPageNo - 1) * sizePerPage) + 1;
         int endRno = startRno + sizePerPage - 1;
         
         paraMap.put("startRno", String.valueOf(startRno));
         paraMap.put("endRno", String.valueOf(endRno));
         
-        // 4. 목록 조회 (DAO 호출)
         List<InquiryVO> inquiryList = adao.getInquiryListWithPaging(paraMap);
-        
-        // 5. 화면 표시용 시작 번호 (오름차순: 1, 11, 21...)
         int startIter = ((currentShowPageNo - 1) * sizePerPage) + 1;
         
-        // 6. 페이지바 생성
-        String pageBar = "";
+        // ==================================================================
+        // [수정 포인트] 공통 페이징 로직 적용
+        // ==================================================================
         int blockSize = 10;
-        int loop = 1;
-        int pageNo = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
-        String url = "admin_inquiry.lp";
+        int startPage = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
+        int endPage = startPage + blockSize - 1;
         
-        if(pageNo != 1) {
-            pageBar += "<a href='"+url+"?currentShowPageNo="+(pageNo-1)+"' class='direction'>&lt;</a>";
+        if(endPage > totalPage) {
+            endPage = totalPage;
         }
-        while( !(loop > blockSize || pageNo > totalPage) ) {
-            if(pageNo == currentShowPageNo) {
-                pageBar += "<span class='active'>"+pageNo+"</span>";
+        
+        String url = "admin_inquiry.lp";
+        String pageBar = "";
+        
+        // 1. [맨처음]
+        if(currentShowPageNo > 1) {
+             pageBar += "<a href='"+url+"?currentShowPageNo=1' class='page-first'>맨처음</a>";
+        } else {
+             pageBar += "<span class='page-first disabled'>맨처음</span>";
+        }
+
+        // 2. [<] 이전
+        if(currentShowPageNo > 1) {
+            pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo-1)+"' class='page-prev'>&lt;</a>";
+        } else {
+            pageBar += "<span class='page-prev disabled'>&lt;</span>";
+        }
+        
+        // 3. [페이지 번호]
+        for(int i = startPage; i <= endPage; i++) {
+            if(i == currentShowPageNo) {
+                pageBar += "<span class='active'>"+i+"</span>";
             } else {
-                pageBar += "<a href='"+url+"?currentShowPageNo="+pageNo+"'>"+pageNo+"</a>";
+                pageBar += "<a href='"+url+"?currentShowPageNo="+i+"'>"+i+"</a>";
             }
-            loop++;
-            pageNo++;
         }
-        if(pageNo <= totalPage) {
-            pageBar += "<a href='"+url+"?currentShowPageNo="+pageNo+"' class='direction'>&gt;</a>";
+        
+        // 4. [>] 다음
+        if(currentShowPageNo < totalPage) {
+             pageBar += "<a href='"+url+"?currentShowPageNo="+(currentShowPageNo+1)+"' class='page-next'>&gt;</a>";
+        } else {
+             pageBar += "<span class='page-next disabled'>&gt;</span>";
+        }
+        
+        // 5. [맨마지막]
+        if(currentShowPageNo < totalPage) {
+            pageBar += "<a href='"+url+"?currentShowPageNo="+totalPage+"' class='page-last'>맨마지막</a>";
+        } else {
+             pageBar += "<span class='page-last disabled'>맨마지막</span>";
         }
         
         request.setAttribute("inquiryList", inquiryList);

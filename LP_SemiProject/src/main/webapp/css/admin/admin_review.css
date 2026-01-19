@@ -50,7 +50,7 @@
 .review-table th:nth-child(1) { width: 5%; }  /* 선택 */
 .review-table th:nth-child(2) { width: 5%; }  /* 번호 */
 .review-table th:nth-child(3) { width: 15%; } /* 상품명 */
-.review-table th:nth-child(4) { width: 40%; } /* 리뷰내용 (가장 넓게 할당) */
+.review-table th:nth-child(4) { width: 40%; } /* 리뷰내용 */
 .review-table th:nth-child(5) { width: 12%; } /* 평점 */
 .review-table th:nth-child(6) { width: 8%; }  /* 작성자 */
 .review-table th:nth-child(7) { width: 9%; }  /* 작성일 */
