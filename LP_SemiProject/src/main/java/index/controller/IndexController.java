@@ -49,6 +49,16 @@ public class IndexController extends AbstractController {
         }
         
         int totalCount = pdao.getTotalProductCount(categoryNo, searchWord);
+        
+        if (totalCount == 0 && searchWord != null && !searchWord.trim().isEmpty()) {
+            
+            request.setAttribute("searchFailed", true);
+            
+            searchWord = ""; 
+            
+            totalCount = pdao.getTotalProductCount(categoryNo, searchWord);
+        }
+        
         int totalPage = (int) Math.ceil((double)totalCount / sizePerPage);
         
         if (currentShowPageNo > totalPage && totalPage != 0) {

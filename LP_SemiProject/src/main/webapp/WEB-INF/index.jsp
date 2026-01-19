@@ -337,6 +337,31 @@
             </c:if>
         });
     </script>
+    <%-- 검색 실패 시 알림창 띄우기 --%>
+    <c:if test="${requestScope.searchFailed}">
+        <script type="text/javascript">
+            alert("검색하신 제품이 없습니다.\n해당 카테고리의 전체 상품 목록을 보여드립니다.");
+            
+            
+            if (history.replaceState) {
+                var cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                
+                
+                <c:if test="${not empty requestScope.categoryNo && requestScope.categoryNo != 0}">
+                    cleanUrl += "?categoryno=${requestScope.categoryNo}";
+                </c:if>
+                
+                window.history.replaceState({path:cleanUrl}, '', cleanUrl);
+            }
+            
+            
+            var searchInput = document.querySelector("input[name='q']");
+            if(searchInput) {
+                searchInput.value = ""; 
+                searchInput.focus();
+            }
+        </script>
+    </c:if>
     
     <div class="grid">
         <c:if test="${not empty requestScope.productList}">
@@ -353,7 +378,7 @@
                             <c:set var="simpleFileName" value="${fn:replace(simpleFileName, 'images/productimg/', '')}" />
                         </c:if>
                         
- <img src="<%= ctxPath%>/images/productimg/${simpleFileName}" alt="${p.productname}">
+ 						<img src="<%= ctxPath%>/images/productimg/${simpleFileName}" alt="${p.productname}">
 						
 						<c:if test="${p.stock == 0}">
                             <div class="sold-out-box">
