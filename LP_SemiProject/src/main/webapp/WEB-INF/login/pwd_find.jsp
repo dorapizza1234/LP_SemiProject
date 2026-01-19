@@ -1,37 +1,25 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%
     String ctxPath = request.getContextPath();
-    //     /MyMVC
 %>
     
-<!-- Required meta tags -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<!-- 1. jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!-- Bootstrap CSS -->
 <script src="<%= ctxPath %>/css/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="<%= ctxPath %>/css/bootstrap-4.6.2-dist/css/bootstrap.min.css">
 
-<!-- Bootstrap CSS (반드시 필요) -->
-<link rel="stylesheet"
-      href="<%= ctxPath %>/css/bootstrap-4.6.2-dist/css/bootstrap.min.css">
-
-
-<!--인증하기버튼 -->
 <style>
-//* ===== 공통 폰트 기준 ===== */
+/* ===== 공통 폰트 기준 ===== */
 :root {
-  --form-font-size: 13px;
+  --form-font-size: 16px;
 }
 .find-menu {
-    width: 100%;                 /* ⭐ 핵심 */
+    width: 100%;
     display: flex;
-    justify-content: center;     /* 화면 가운데 */
+    justify-content: center;
     gap: 30px;
     margin: 20px 0;
 }
@@ -52,7 +40,7 @@
 }
 
 .form-container li {
-  margin: 12px 0; /* 🔽 더 compact */
+  margin: 12px 0;
 }
 
 /* 라벨 */
@@ -85,25 +73,31 @@
   padding: 7px 26px;
 }
 
+/* 스피너 텍스트 스타일 */
+#spinner p {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+}
 </style>
+
 <script type="text/javascript">
    $(function(){
        const method = "${method}";
        const find_method = "${find_method}";
 
-       // 1. 초기 UI 세팅 (POST 시 상태 유지)
+       // 1. 초기 UI 세팅
        if(method == "POST") {
            $('input:text[name="userid"]').val("${userid}");
            
            if(find_method == "mobile") {
-               setFindMethod('mobile'); // 휴대폰 탭 고정
+               setFindMethod('mobile');
                $('input:text[name="mobile"]').val("${mobile}");
            } else {
-               setFindMethod('email'); // 이메일 탭 고정
+               setFindMethod('email');
                $('input:text[name="email"]').val("${email}");
            }
            
-           // 발송 성공 시 찾기 버튼 숨기기
            if("${isUserExists}" == "true" && "${sendSuccess}" == "true") {
                $('#btnFind').hide();
            }
@@ -111,25 +105,25 @@
            $('div#div_findResult').hide();
        }
        
-       // 2. 탭 클릭 이벤트
+       // 탭 클릭 이벤트
        $('.find-menu-item').click(function(){
            const id = $(this).attr('id');
            const mode = (id == 'btn_email') ? 'email' : 'mobile';
            setFindMethod(mode);
        });
 
-       // 3. 엔터키 이벤트<키보드엔터 고유번호 ==13 엔터를 눌렀을경우>
+       // 엔터키 이벤트
        $('input:text[name="email"], input:text[name="mobile"]').bind('keyup', function(e){
            if(e.keyCode == 13) { goFind(); }
        });
        
        $('#btnFind').click(function(){ goFind(); });
        
-       // 4. 인증하기 버튼 클릭
+       // 인증하기 버튼 클릭
        $(document).on('click', 'button.btn-info', function(){
            const input_confirmCode = $('input:text[name="input_confirmCode"]').val().trim(); 
            if(input_confirmCode == "") {
-               alert("인증코드를 입력하세요!!");
+               alert("인증코드를 입력하세요.");
                return;
            }
            
@@ -143,7 +137,6 @@
        });
    });
 
-   // [중요] UI 전환 함수 정의
    function setFindMethod(mode) {
        $('.find-menu-item').css({'color': '#888', 'border-bottom': 'none'});
        $('input[name="find_method"]').val(mode);
@@ -161,18 +154,22 @@
 
    function goFind(){
        const userid = $('input:text[name="userid"]').val().trim();
-       if(userid == "") { alert("아이디를 입력하세요!!"); return; }
+       if(userid == "") { alert("아이디를 입력하세요."); return; }
        
        const mode = $('input[name="find_method"]').val();
        if(mode == 'email') {
            const email = $('input:text[name="email"]').val();
-           const regExp_email =  /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i; 
+           const regExp_email =  /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@naver\.com$/i; 
            if(!regExp_email.test(email)) { alert("이메일을 올바르게 입력하세요."); return; }
        } else {
            const mobile = $('input:text[name="mobile"]').val().trim();
-           if(mobile == "") { alert("휴대폰 번호를 입력하세요!!"); return; }
+           if(mobile == "") { alert("휴대폰 번호를 입력하세요."); return; }
        }
        
+       // 전송 버튼 숨기고 스피너 표시
+       $('#btnFind').hide();
+       $('#spinner').show();
+
        const frm = document.pwdFindFrm;
        frm.method = "post";
        frm.action = "<%= ctxPath%>/login/pwd_find.lp"; 
@@ -197,7 +194,7 @@
       
       <li id="li_email">
           <label>이메일</label>
-          <input type="text" name="email" autocomplete="off" /> 
+          <input type="text" name="email" autocomplete="off" placeholder="pwd_find@naver.com"/> 
       </li>
 
       <li id="li_mobile" style="display: none;">
@@ -208,16 +205,21 @@
 
    <div class="my-3 text-center">
        <button type="button" id="btnFind" class="btn btn-dark">인증번호 발송</button>
+       
+       <div id="spinner" style="display: none;">
+           <div class="spinner-border text-dark" role="status">
+               <span class="sr-only">Loading...</span>
+           </div>
+           <p>메일을 발송 중입니다. 잠시만 기다려주세요.</p>
+       </div>
    </div>
 </form>
+
 <div class="my-3 text-center" id="div_findResult">
-   
-  <%-- 사용자가 존재하지 않는 경우 --%>
    <c:if test="${method == 'POST' && isUserExists == false}">
        <span style="color: red;">사용자 정보가 없습니다</span>
    </c:if>
    
-   <%-- 사용자가 존재하고 발송까지 성공한 경우 --%>
    <c:if test="${isUserExists == true && sendSuccess == true}">
        <div id="div_confirm">
            <span style="font-size: 10pt; color: dark;">
@@ -231,30 +233,13 @@
        </div>
        
        <script type="text/javascript">
-           // 성공 시 찾기 버튼을 숨깁니다.
            $('#btnFind').hide();
+           $('#spinner').hide(); // 결과가 오면 스피너도 숨김
        </script>
    </c:if>
-   
 </div>
 
-
-<%-- 인증하기 form --%>
 <form name="verifyCertificationFrm">
-	<input type="hidden" name="userCertificationCode" />
-	<input type="hidden" name="userid" />
+    <input type="hidden" name="userCertificationCode" />
+    <input type="hidden" name="userid" />
 </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    

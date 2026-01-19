@@ -34,11 +34,17 @@ body {
   padding: 20px 0;
 }
 
-/* 리뷰 iframe */
+/* ===================================================
+   1. 기본 화면 (PC 버전: 768px 이상일 때 적용)
+   =================================================== */
+
+/* 리뷰 iframe 박스 */
 .mypage-info iframe {
   width: 100%;
-  height: 350px;     /* JSP에서 height=350 줬으니 일단 동일 */
   border: none;
+  /* 기본(PC) 높이를 여기서 길게 잡으세요 */
+  height: 550px; 
+  min-height: 550px; 
 }
 
 /* =====================
@@ -195,11 +201,14 @@ body {
   gap: 10px;
 }
 
+/* ===================================================
+   2. 반응형 화면 (모바일 버전: 767px 이하일 때만 적용)
+   =================================================== */
 @media (max-width: 767px) {
-
+  
   .mypage-info {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; 
     gap: 12px;
     padding: 0 16px;         
     box-sizing: border-box;
@@ -208,15 +217,18 @@ body {
   .mypage-info .info-box {
     flex: 1;
     padding: 14px;
+    min-height: auto; 
+  }
+
+
+  .mypage-info iframe {
+    height: 160px !important;  
+    min-height: 160px !important;
   }
 
   .point {
     font-size: 22px;
     padding: 12px 0;
-  }
-
-  .mypage-info iframe {
-    height: 160px;            
   }
 
   .info-box h4 {
