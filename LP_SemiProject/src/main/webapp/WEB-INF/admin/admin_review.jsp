@@ -90,8 +90,8 @@
                     <td>${rvo.writedate}</td>
                     
                     <td>
-                        <button type="button" class="btn-hide">숨김</button>
-                    </td>
+    					<button type="button" class="btn-row-delete" onclick="goDeleteOne('${rvo.reviewno}')">삭제</button>
+					</td>
                 </tr>
             </c:forEach>
         </tbody>
