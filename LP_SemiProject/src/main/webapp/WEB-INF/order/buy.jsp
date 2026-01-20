@@ -346,8 +346,8 @@ $(function () {
 
       const calc = recomputeAndRender();
 
-      //const payAmount = calc.finalPay;
-      const payAmount = 1000; // 테스트용
+      const payAmount = calc.finalPay;
+      //const payAmount = 1000; // 테스트용
 
       
       if (payAmount <= 0) {
