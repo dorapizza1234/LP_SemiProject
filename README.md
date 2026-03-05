@@ -93,7 +93,6 @@ LP_SemiProject/
     │   ├── product/        # 상품 (Controller + Domain + Model)
     │   └── util/security/  # 보안 유틸
     └── webapp/WEB-INF/
-        ├── admin/          # 관리자 JSP
         ├── login/          # 로그인 JSP
         ├── member/         # 회원 JSP
         ├── my_info/        # 마이페이지 JSP
