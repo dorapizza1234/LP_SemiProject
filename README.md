@@ -17,7 +17,7 @@
 > **LP_SemiProject**는 Java MVC 패턴 기반의 **쇼핑몰 웹 애플리케이션**입니다.
 > 회원 관리, 상품 조회, 장바구니, 주문, 리뷰, 관리자 페이지 등 쇼핑몰 핵심 기능을 구현했습니다.
 
-- 📅 개발 기간: 2024 (세미 프로젝트)
+- 📅 개발 기간: 2025.01.04~01.15 (세미 프로젝트)
 - 👥 팀 구성: 3팀
 - 🏗 아키텍처: FrontController 패턴 (순수 Java Servlet + JSP)
 
@@ -28,8 +28,6 @@
 | 이름 | 역할 |
 |------|------|
 | dorapizza1234 | Full-Stack (회원, 인증, 주문, DB 설계) |
-| 팀원 2 | Frontend (UI/UX, JSP) |
-| 팀원 3 | Backend (상품, 관리자 기능) |
 
 ---
 
@@ -59,12 +57,6 @@
 | 유휴 세션 해제 | 자동 로그아웃 방지 |
 | 회원 탈퇴 | 탈퇴 처리 |
 
-### 🛍 상품 & 주문 (Product & Order)
-| 기능 | 설명 |
-|------|------|
-| 상품 목록 / 상세 | 상품 정보 조회 |
-| 장바구니 | 상품 담기, 수량 변경, 삭제 |
-| 주문 | 결제 및 주문 처리 |
 
 ### 📋 마이페이지 (My Info)
 | 기능 | 설명 |
@@ -75,17 +67,7 @@
 | 리뷰 | 리뷰 작성·삭제 |
 | 취향 관리 | 음식 취향 재설정 |
 | 문의 내역 | 1:1 문의 확인 |
-
-### 🔧 관리자 (Admin)
-| 기능 | 설명 |
-|------|------|
-| 관리자 로그인 | 별도 인증 |
-| 회원 관리 | 전체 회원 조회·관리 |
-| 상품 관리 | 상품 등록·수정·삭제 |
-| 주문 관리 | 주문 현황 및 처리 |
-| 리뷰 관리 | 리뷰 모니터링 |
-| 문의 관리 | 1:1 문의 답변 |
-| 계정 관리 | 관리자 계정 설정 |
+|
 
 ### 🗺 기타
 - 매장 위치 지도 (`storeLocation`)
@@ -129,26 +111,7 @@ LP_SemiProject/
 - Oracle DB
 - Maven
 
-### 실행 순서
 
-```bash
-# 1. 저장소 클론
-git clone https://github.com/dorapizza1234/LP_SemiProject.git
-cd LP_SemiProject/LP_SemiProject
-
-# 2. Oracle DB 설정 (DB 접속 정보 입력)
-# src/main/resources 또는 web.xml 내 DB 설정 수정
-
-# 3. Maven 빌드
-mvn clean package
-
-# 4. Tomcat에 war 배포 또는 IDE에서 Run on Server
-```
-
-### 접속
-```
-http://localhost:8080/LP_SemiProject
-```
 
 ---
 
